@@ -1,0 +1,50 @@
+repos:
+  # Hooks básicos de higiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=500"]  # ajuste se precisar
+
+  # Ruff: lint + formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        args: ["--fix"]   # aplica autofix quando possível
+      - id: ruff-format
+
+  # Codespell: pega typo besta em textos/código
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        additional_dependencies: ["tomli"]  # silencia warning em pyproject
+        args: ["-L", "crate,clas"]  # palavras a ignorar
+
+  # Mypy (usa seu venv do Poetry)
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (poetry)
+        entry: poetry run mypy
+        language: system
+        types: [python]
+        pass_filenames: true
+        stages: [commit]  # mudar para [push] se ficar lento
+
+  # Testes rápidos antes de fazer push (não roda a cada commit)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (poetry) – pre-push
+        entry: poetry run pytest -q
+        language: system
+        pass_filenames: false
+        stages: [push]
