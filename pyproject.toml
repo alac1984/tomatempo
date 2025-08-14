@@ -30,4 +30,35 @@ pythonpath = ["src"]
 [tool.mypy]
 mypy_path = "src"
 namespace_packages = true
+explicit_package_bases = true[tool.mypy]
+mypy_path = "src"
+namespace_packages = true
 explicit_package_bases = true
+
+[tool.ruff]
+# Ajusta à sua versão (py311, py312…)
+target-version = "py311"
+line-length = 100
+# arquivos/pastas a ignorar
+exclude = ["build", "dist", ".venv", ".mypy_cache", ".ruff_cache"]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "W",   # warnings
+  "I",   # isort (ordena imports)
+  "UP",  # pyupgrade
+  "B",   # bugbear
+  "C4",  # list/set/dict comprehensions
+  "PT",  # convenções pytest
+]
+ignore = [
+  "E501",  # comprimento de linha (o formatter já resolve)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
