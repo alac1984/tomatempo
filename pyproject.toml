@@ -21,6 +21,11 @@ mypy = "^1.17.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pytest]
+markers =
+    smoke: test smoke imports
+    slow: mark test as slow.
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
