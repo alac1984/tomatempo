@@ -12,6 +12,7 @@ sqlmodel = "^0.0.24"
 alembic = "^1.16.4"
 typer = "^0.16.0"
 platformdirs = "^4.3.8"
+pydantic-settings = "^2.10.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

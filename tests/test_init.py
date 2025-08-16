@@ -1,23 +1,29 @@
-import os
-
 import pytest
 from typer.testing import CliRunner
 
-pytestmark = pytest.mark.usefixtures("_side_effects")
+
+@pytest.mark.smoke
+def test_smoke_imports_tomatempo_test(tsettings_test, assert_dirs_empty):
+    assert_dirs_empty(tsettings_test)
 
 
 @pytest.mark.smoke
-def test_smoke_imports_tomatempo():
-    assert os.listdir(os.getcwd()) == []
+def test_smoke_imports_tomatempo_prod(tsettings_prod, assert_dirs_empty):
+    assert_dirs_empty(tsettings_prod)
 
 
 @pytest.mark.smoke
-def test_smoke_imports_app():
-    assert os.listdir(os.getcwd()) == []
+def test_smoke_imports_app_test(tsettings_test, assert_dirs_empty):
+    assert_dirs_empty(tsettings_test)
 
 
 @pytest.mark.smoke
-def test_smoke_imports_help():
+def test_smoke_imports_app_prod(tsettings_prod, assert_dirs_empty):
+    assert_dirs_empty(tsettings_prod)
+
+
+@pytest.mark.smoke
+def test_smoke_imports_help(tsettings_test):
     from tomatempo.cli import app
 
     runner = CliRunner()

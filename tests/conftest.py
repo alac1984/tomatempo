@@ -1,27 +1,43 @@
-import os
-import shutil
-from pathlib import Path
-
 import pytest
+
+from tomatempo.settings import Settings
 
 
 @pytest.fixture
-def _side_effects(monkeypatch):
-    # Change current working dir
-    temp_dir = Path(".tests/")
+def tsettings_test(tmp_path, monkeypatch):
+    """
+    Create a default test settings instance and change all
+    default folders to test folders
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_LOGS_HOME", str(tmp_path / "logs"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
 
-    # Pointing all other dirs to temp_dir
+    tsettings = Settings(log_level="DEBUG", environment="test")
 
-    # If temp_dir exists
-    if not temp_dir.exists():
-        os.mkdir(temp_dir)
-    else:
-        shutil.rmtree(temp_dir)
-        os.mkdir(temp_dir)
+    return tsettings
 
-    monkeypatch.chdir(temp_dir)
 
-    yield
+@pytest.fixture
+def tsettings_prod(tmp_path, monkeypatch):
+    """
+    Create a default test settings instance and change all
+    default folders to test folders
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_LOGS_HOME", str(tmp_path / "logs"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
 
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
+    tsettings = Settings(log_level="DEBUG", environment="prod")
+
+    return tsettings
+
+
+@pytest.fixture
+def assert_dirs_empty():
+    def _check(settings: Settings):
+        assert list(settings.cache_dir.iterdir()) == []
+        assert list(settings.logs_dir.iterdir()) == []
+        assert list(settings.config_dir.iterdir()) == []
+
+    return _check
