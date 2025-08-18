@@ -1,5 +1,3 @@
-"""TODO: docstring"""
-
 import logging
 from functools import cached_property, lru_cache
 from pathlib import Path
@@ -22,7 +20,20 @@ _LOG_MAP: dict[LogName, int] = {
 
 
 class Settings(BaseSettings):
-    """TODO: docstring"""
+    """
+    Centralizes all application settings.
+
+    - Loads values from:
+    1. Explicit arguments in the constructor (Settings(environment="prod"));
+    2. Environment variables with the APP_ prefix (e.g., APP_ENVIRONMENT=prod);
+    3. The .env file, if present;
+    4. Default values defined in the class.
+
+    - Includes normalization and validation of environment and log_level;
+    - Exposes computed properties (is_prod, debug, log_level_numeric);
+    - Manages configuration, cache, and log directories using platformdirs;
+    - Can be used as a singleton via get_settings().
+    """
 
     # App identity / dirs
     app_name: str = "tomatempo"
@@ -64,19 +75,19 @@ class Settings(BaseSettings):
             raise ValueError(f"invalid environment {v}. Use {valid}.")
         return v  # type: ignore[return-value]
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
     def log_level_numeric(self) -> int:
         """Numeric level for logging.basicConfig."""
         return _LOG_MAP[self.log_level]
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
     def is_prod(self) -> bool:
         return self.environment == "prod"
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
     def debug(self) -> bool:
         return self.environment in {"dev", "test"}
 
