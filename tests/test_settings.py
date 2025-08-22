@@ -1,5 +1,7 @@
 from platform import system
 
+import pytest
+
 from tomatempo.settings import Settings
 
 # ---------------------------
@@ -108,12 +110,16 @@ def test_settings_precedence(clean_settings, tmp_path, write_env, monkeypatch):
 
 def test_invalid_log_level_raises():
     """Ensure that an invalid log_level raises a ValueError in the validator."""
-    # TODO
+
+    with pytest.raises(ValueError, match="invalid log_level"):
+        Settings(log_level="testing")
 
 
 def test_invalid_environment_raises():
     """Ensure that an invalid environment raises a ValueError in the validator."""
-    # TODO
+
+    with pytest.raises(ValueError, match="invalid environment"):
+        Settings(environment="stages")
 
 
 # ---------------------------
