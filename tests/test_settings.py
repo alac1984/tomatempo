@@ -129,17 +129,46 @@ def test_invalid_environment_raises():
 
 def test_log_level_numeric_mapping():
     """Confirm that log_level_numeric returns the correct numeric value for each log level."""
-    # TODO
+
+    s1 = Settings(log_level="DEBUG")
+    s2 = Settings(log_level="INFO")
+    s3 = Settings(log_level="WARNING")
+    s4 = Settings(log_level="ERROR")
+    s5 = Settings(log_level="CRITICAL")
+
+    assert s1.log_level_numeric == 10
+    assert s2.log_level_numeric == 20
+    assert s3.log_level_numeric == 30
+    assert s4.log_level_numeric == 40
+    assert s5.log_level_numeric == 50
 
 
 def test_is_prod_true_only_in_prod():
     """Confirm that is_prod is True only when environment='prod'."""
-    # TODO
+
+    s1 = Settings(environment="dev")
+    s2 = Settings(environment="staging")
+    s3 = Settings(environment="test")
+    s4 = Settings(environment="prod")
+
+    assert not s1.is_prod
+    assert not s2.is_prod
+    assert not s3.is_prod
+    assert s4.is_prod
 
 
 def test_debug_true_in_dev_and_test():
     """Confirm that debug is True only in dev and test, and False in prod and staging."""
-    # TODO
+
+    s1 = Settings(environment="dev")
+    s2 = Settings(environment="staging")
+    s3 = Settings(environment="test")
+    s4 = Settings(environment="prod")
+
+    assert s1.debug
+    assert not s2.debug
+    assert s3.debug
+    assert not s4.debug
 
 
 # ---------------------------
