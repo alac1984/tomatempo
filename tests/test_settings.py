@@ -127,8 +127,10 @@ def test_invalid_environment_raises():
 # ---------------------------
 
 
-def test_log_level_numeric_mapping():
+def test_log_level_numeric_mapping(clean_settings, monkeypatch, tmp_path):
     """Confirm that log_level_numeric returns the correct numeric value for each log level."""
+
+    clean_settings(monkeypatch, tmp_path)
 
     s1 = Settings(log_level="DEBUG")
     s2 = Settings(log_level="INFO")
@@ -143,8 +145,10 @@ def test_log_level_numeric_mapping():
     assert s5.log_level_numeric == 50
 
 
-def test_is_prod_true_only_in_prod():
+def test_is_prod_true_only_in_prod(clean_settings, monkeypatch, tmp_path):
     """Confirm that is_prod is True only when environment='prod'."""
+
+    clean_settings(monkeypatch, tmp_path)
 
     s1 = Settings(environment="dev")
     s2 = Settings(environment="staging")
@@ -157,8 +161,10 @@ def test_is_prod_true_only_in_prod():
     assert s4.is_prod
 
 
-def test_debug_true_in_dev_and_test():
+def test_debug_true_in_dev_and_test(clean_settings, monkeypatch, tmp_path):
     """Confirm that debug is True only in dev and test, and False in prod and staging."""
+
+    clean_settings(monkeypatch, tmp_path)
 
     s1 = Settings(environment="dev")
     s2 = Settings(environment="staging")
@@ -176,24 +182,46 @@ def test_debug_true_in_dev_and_test():
 # ---------------------------
 
 
-def test_cache_dir_created():
+def test_cache_dir_created(clean_settings, monkeypatch, tmp_path):
     """Ensure that cache_dir creates the directory if ensure_dirs=True."""
-    # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings = Settings(ensure_dirs=True)
+
+    assert settings.cache_dir.exists()
 
 
-def test_logs_dir_created():
+def test_logs_dir_created(clean_settings, monkeypatch, tmp_path):
     """Ensure that logs_dir creates the directory if ensure_dirs=True."""
-    # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings = Settings(ensure_dirs=True)
+
+    assert settings.logs_dir.exists()
 
 
-def test_config_dir_created():
+def test_config_dir_created(clean_settings, monkeypatch, tmp_path):
     """Ensure that config_dir creates the directory if ensure_dirs=True."""
-    # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings = Settings(ensure_dirs=True)
+
+    assert settings.config_dir.exists()
 
 
-def test_dirs_not_created_if_disabled():
+def test_dirs_not_created_if_disabled(clean_settings, monkeypatch, tmp_path):
     """Ensure that if ensure_dirs=False, the directories are not created automatically."""
-    # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings = Settings(ensure_dirs=False)
+
+    assert not settings.cache_dir.exists()
+    assert not settings.logs_dir.exists()
+    assert not settings.config_dir.exists()
 
 
 # ---------------------------
