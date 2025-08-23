@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from tomatempo.settings import Settings
+from tomatempo.settings import Settings, get_settings
 
 
 @pytest.fixture
@@ -23,9 +23,12 @@ def clean_settings(tmp_path):
         m.chdir(tmp)
 
         # New directories
-        m.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
-        m.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
-        m.setenv("XDG_CACHE_HOME", str(tmp_path / "cache"))
+        m.setenv("XDG_CONFIG_HOME", str(tmp / "config"))
+        m.setenv("XDG_STATE_HOME", str(tmp / "state"))
+        m.setenv("XDG_CACHE_HOME", str(tmp / "cache"))
+
+        # Limpando o cache da singleton
+        get_settings.cache_clear()
 
         # Remove .env file
         (tmp / ".env").unlink(missing_ok=True)

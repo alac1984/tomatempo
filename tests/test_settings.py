@@ -1,8 +1,9 @@
 from platform import system
 
 import pytest
+from pydantic import ValidationError
 
-from tomatempo.settings import Settings
+from tomatempo.settings import Settings, get_settings, reload_settings
 
 # ---------------------------
 # Construction & Defaults
@@ -111,14 +112,14 @@ def test_settings_precedence(clean_settings, tmp_path, write_env, monkeypatch):
 def test_invalid_log_level_raises():
     """Ensure that an invalid log_level raises a ValueError in the validator."""
 
-    with pytest.raises(ValueError, match="invalid log_level"):
+    with pytest.raises(ValidationError, match="invalid log_level"):
         Settings(log_level="testing")
 
 
 def test_invalid_environment_raises():
     """Ensure that an invalid environment raises a ValueError in the validator."""
 
-    with pytest.raises(ValueError, match="invalid environment"):
+    with pytest.raises(ValidationError, match="invalid environment"):
         Settings(environment="stages")
 
 
@@ -159,6 +160,13 @@ def test_is_prod_true_only_in_prod(clean_settings, monkeypatch, tmp_path):
     assert not s2.is_prod
     assert not s3.is_prod
     assert s4.is_prod
+
+
+def test_environment_case_insensitive(clean_settings, tmp_path, monkeypatch):
+    clean_settings(monkeypatch, tmp_path)
+    monkeypatch.setenv("APP_ENVIRONMENT", "PROD")
+    s = Settings()
+    assert s.environment == "prod"
 
 
 def test_debug_true_in_dev_and_test(clean_settings, monkeypatch, tmp_path):
@@ -229,11 +237,46 @@ def test_dirs_not_created_if_disabled(clean_settings, monkeypatch, tmp_path):
 # ---------------------------
 
 
-def test_get_settings_singleton():
+def test_get_settings_singleton(clean_settings, monkeypatch, tmp_path):
     """Ensure that get_settings() always returns the same instance while the cache is not cleared."""
-    # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings1 = get_settings()
+
+    settings1.log_level = "WARNING"
+
+    settings2 = get_settings()
+
+    assert settings1 is settings2
 
 
-def test_reload_settings_creates_new_instance():
+def test_env_change_requires_reload(clean_settings, tmp_path, monkeypatch):
+    clean_settings(monkeypatch, tmp_path)
+    monkeypatch.setenv("APP_LOG_LEVEL", "INFO")
+    s1 = get_settings()
+    assert s1.log_level == "INFO"
+
+    # muda env
+    monkeypatch.setenv("APP_LOG_LEVEL", "ERROR")
+    s_still = get_settings()
+    assert s_still.log_level == "INFO"  # ainda o mesmo singleton
+
+    s2 = reload_settings()
+    assert s2.log_level == "ERROR"
+    assert s2 is get_settings()
+
+
+def test_reload_settings_creates_new_instance(clean_settings, monkeypatch, tmp_path):
     """Ensure that reload_settings() clears the cache and returns a new distinct instance."""
     # TODO
+
+    clean_settings(monkeypatch, tmp_path)
+
+    settings1 = get_settings()
+
+    settings1.log_level = "WARNING"
+
+    settings2 = reload_settings()
+
+    assert settings1 is not settings2

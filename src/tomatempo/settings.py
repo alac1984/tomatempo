@@ -55,6 +55,7 @@ class Settings(BaseSettings):
         case_sensitive=False,  # Windows friendly
         extra="ignore",
         env_nested_delimiter="__",
+        validate_assignment=True,
     )
 
     @field_validator("log_level", mode="before")
@@ -70,6 +71,7 @@ class Settings(BaseSettings):
     @classmethod
     def _coerce_environment(cls, v: str) -> Environment:
         """Validate environment"""
+        v = str(v).lower()
         valid = ["dev", "staging", "prod", "test"]
         if v not in valid:
             raise ValueError(f"invalid environment {v}. Use {valid}.")
