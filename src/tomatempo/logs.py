@@ -1,14 +1,13 @@
-import os
-import json
 import atexit
+import datetime as dt
+import json
 import logging
 import logging.config
 import logging.handlers
-import datetime as dt
 from pathlib import Path
 from typing import override
 
-from tomatempo.settings import Settings, get_settings
+from tomatempo.settings import Settings
 
 LOG_RECORD_BUILTIN_ATTRS = {
     "args",
@@ -36,6 +35,7 @@ LOG_RECORD_BUILTIN_ATTRS = {
     "taskName",
 }
 
+
 class JSONFormatter(logging.Formatter):
     """
     Custom Formatter for compose logs in JSONLines format.
@@ -50,20 +50,17 @@ class JSONFormatter(logging.Formatter):
         message = self._prepare_log_dict(record)
         return json.dumps(message, default=str)
 
-
     def _prepare_log_dict(self, record: logging.LogRecord) -> dict[str, str]:
         always_fields = {
             "message": record.getMessage(),
-            "timestamp": dt.datetime.fromtimestamp(
-                record.created, tz=dt.timezone.utc
-            ).isoformat(),
+            "timestamp": dt.datetime.fromtimestamp(record.created, tz=dt.UTC).isoformat(),
         }
 
         if record.exc_info is not None:
-            always_fields['exc_info'] = self.formatException(record.exc_info)
+            always_fields["exc_info"] = self.formatException(record.exc_info)
 
         if record.stack_info is not None:
-            always_fields['stack_info'] = self.formatStack(record.stack_info)
+            always_fields["stack_info"] = self.formatStack(record.stack_info)
 
         message = {
             key: msg_val
@@ -89,26 +86,27 @@ class NonErrorFilter(logging.Filter):
 
 _listener = None
 
+
 def setup_logging(settings: Settings):
     # Make sure log directory exists
     Path(settings.logs_dir).mkdir(parents=True, exist_ok=True)
 
     # Load yaml and placeholders
     config_file = Path("./src/tomatempo/config/logging.yaml")
-    
+
     import yaml  # type: ignore [import-untyped]
 
     with open(config_file) as f_in:
         cfg = yaml.safe_load(f_in)
 
         # Insert log dir
-        cfg['handlers']['file_json']['filename'] = str(settings.logs_dir) + "/log_tomatempo.jsonl"
+        cfg["handlers"]["file_json"]["filename"] = str(settings.logs_dir) + "/log_tomatempo.jsonl"
 
         # Insert log level in root
-        cfg['root']['level'] = settings.log_level
+        cfg["root"]["level"] = settings.log_level
 
     logging.config.dictConfig(cfg)
-    
+
     # Get root logger
     root = logging.getLogger()
     # Get the queue handler

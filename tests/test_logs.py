@@ -1,8 +1,6 @@
 import json
-from pathlib import Path
 from logging import LogRecord
 
-import pytest
 from freezegun import freeze_time
 
 from tomatempo.logs import JSONFormatter
@@ -16,12 +14,12 @@ def test_json_formatter_formats_record(tmp_path, format_keys):
     """
 
     logrecord = LogRecord(
-        "test", 
-        10, 
-        str(tmp_path), 
-        10, 
-        "This is a test", 
-        None, 
+        "test",
+        10,
+        str(tmp_path),
+        10,
+        "This is a test",
+        None,
         None,
     )
 
