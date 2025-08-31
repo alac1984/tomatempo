@@ -8,29 +8,34 @@ from tomatempo.settings import Settings, get_settings
 
 @pytest.fixture
 def clean_settings(tmp_path):
+    """
+    Limpa variáveis de ambiente e ajusta diretórios temporários
+    para garantir um ambiente controlado nos testes.
+    """
+
     def clean(m: pytest.MonkeyPatch, tmp: Path) -> None:
-        # Cleaning env vars
+        # Limpa variáveis XDG
         m.delenv("XDG_CONFIG_HOME", raising=False)
         m.delenv("XDG_STATE_HOME", raising=False)
         m.delenv("XDG_CACHE_HOME", raising=False)
 
-        # Cleaning APP env vars
+        # Limpa variáveis de ambiente da aplicação
         for v in list(os.environ):
             if v.startswith("APP_"):
                 m.delenv(v, raising=False)
 
-        # Setting new cwd
+        # Define novo diretório de trabalho
         m.chdir(tmp)
 
-        # New directories
+        # Cria novos diretórios base
         m.setenv("XDG_CONFIG_HOME", str(tmp / "config"))
         m.setenv("XDG_STATE_HOME", str(tmp / "state"))
         m.setenv("XDG_CACHE_HOME", str(tmp / "cache"))
 
-        # Limpando o cache da singleton
+        # Limpa o cache da singleton
         get_settings.cache_clear()
 
-        # Remove .env file
+        # Remove arquivo .env, se existir
         (tmp / ".env").unlink(missing_ok=True)
 
     return clean
@@ -39,63 +44,70 @@ def clean_settings(tmp_path):
 @pytest.fixture
 def tsettings(clean_settings, tmp_path, monkeypatch):
     """
-    Create a default test settings instance and change all
-    default folders to test folders
+    Cria uma instância padrão de Settings com diretórios de teste.
     """
-
     clean_settings(monkeypatch, tmp_path)
-
-    tsettings = Settings()
-
-    return tsettings
+    return Settings()
 
 
 @pytest.fixture
 def tsettings_test(clean_settings, tmp_path, monkeypatch):
     """
-    Create a default test settings instance and change all
-    default folders to test folders
+    Cria uma instância de Settings em ambiente de teste,
+    com APP_ROAMING = false.
     """
-
     clean_settings(monkeypatch, tmp_path)
-
-    # Roaming false
     monkeypatch.setenv("APP_ROAMING", "false")
-
-    tsettings = Settings(log_level="DEBUG", environment="test")
-
-    return tsettings
+    return Settings(log_level="DEBUG", environment="test")
 
 
 @pytest.fixture
 def tsettings_prod(clean_settings, tmp_path, monkeypatch):
     """
-    Create a default test settings instance and change all
-    default folders to test folders
+    Cria uma instância de Settings em ambiente de produção.
     """
     clean_settings(monkeypatch, tmp_path)
-
-    tsettings = Settings(log_level="DEBUG", environment="prod")
-
-    return tsettings
+    return Settings(log_level="DEBUG", environment="prod")
 
 
 @pytest.fixture
 def assert_dirs_empty():
+    """
+    Verifica se os diretórios de cache, logs e config estão vazios.
+    """
+
     def _check(settings: Settings):
         assert list(settings.cache_dir.iterdir()) == []
         assert list(settings.logs_dir.iterdir()) == []
         assert list(settings.config_dir.iterdir()) == []
+        return _check
 
     return _check
 
 
 @pytest.fixture
 def write_env(tmp_path: Path):
+    """
+    Cria um arquivo `.env` no diretório temporário com o conteúdo fornecido.
+    """
+
     def write(tmp: Path, content: str) -> Path:
         env_path = tmp / ".env"
         env_path.write_text(content, encoding="utf-8")
-
         return env_path
 
     return write
+
+
+@pytest.fixture
+def format_keys():
+    return {
+        "level": "levelname",
+        "message": "message",
+        "timestamp": "timestamp",
+        "logger": "name",
+        "module": "module",
+        "function": "funcName",
+        "line": "lineno",
+        "thread_name": "threadName",
+    }

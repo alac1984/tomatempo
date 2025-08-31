@@ -13,11 +13,13 @@ alembic = "^1.16.4"
 typer = "^0.16.0"
 platformdirs = "^4.3.8"
 pydantic-settings = "^2.10.1"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pynvim = "^0.5.2"
 mypy = "^1.17.1"
+freezegun = "^1.5.5"
 
 [build-system]
 requires = ["poetry-core"]
