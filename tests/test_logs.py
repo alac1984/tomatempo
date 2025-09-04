@@ -43,12 +43,20 @@ def test_json_formatter_includes_extra_fields(caplog, json_formatter):
     assert data["test_field"] == "This is a test field"
 
 
-def test_json_formatter_handles_exceptions():
+def test_json_formatter_handles_exceptions(caplog, json_formatter):
     """
     Check that JSONFormatter properly serializes exception and stack information when present.
     """
-    # TODO
-    ...
+
+    def division_by_zero():
+        return 0 / 0
+
+    try:
+        division_by_zero()
+    except ZeroDivisionError as e:
+        LOGGER.exception(e)
+
+    assert "division by zero" in caplog.text
 
 
 def test_non_error_filter_allows_info_and_below():
