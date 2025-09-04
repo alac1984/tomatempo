@@ -1,8 +1,11 @@
+import logging
 import os
 from pathlib import Path
 
 import pytest
+from freezegun import freeze_time
 
+from tomatempo.logs import JSONFormatter
 from tomatempo.settings import Settings, get_settings
 
 
@@ -100,8 +103,16 @@ def write_env(tmp_path: Path):
 
 
 @pytest.fixture
-def format_keys():
-    return {
+def log_record(tmp_path):
+    with freeze_time("2023-01-01 12:00:00"):
+        yield logging.LogRecord(
+            "test", 10, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+        )
+
+
+@pytest.fixture
+def json_formatter():
+    format_keys = {
         "level": "levelname",
         "message": "message",
         "timestamp": "timestamp",
@@ -111,3 +122,5 @@ def format_keys():
         "line": "lineno",
         "thread_name": "threadName",
     }
+
+    return JSONFormatter(fmt_keys=format_keys)

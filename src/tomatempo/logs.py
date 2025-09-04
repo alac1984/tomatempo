@@ -127,4 +127,4 @@ def setup_logging(settings: Settings):
     atexit.register(lambda: (_listener.stop() if _listener else None))
 
 
-logger = logging.getLogger()
+LOGGER = logging.getLogger()

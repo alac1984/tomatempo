@@ -1,31 +1,15 @@
 import json
-from logging import LogRecord
 
-from freezegun import freeze_time
-
-from tomatempo.logs import JSONFormatter
+from tomatempo.logs import LOGGER
 
 
-@freeze_time("2023-01-01 12:00:00")
-def test_json_formatter_formats_record(tmp_path, format_keys):
+def test_json_formatter_formats_record(log_record, json_formatter):
     """
     Ensure that JSONFormatter correctly formats a LogRecord into a JSON string
     containing expected keys (message, timestamp, level, etc.).
     """
 
-    logrecord = LogRecord(
-        "test",
-        10,
-        str(tmp_path),
-        10,
-        "This is a test",
-        None,
-        None,
-    )
-
-    jf = JSONFormatter(fmt_keys=format_keys)
-
-    result = jf.format(logrecord)
+    result = json_formatter.format(log_record)
 
     assert result is not None
     assert isinstance(result, str)
@@ -43,12 +27,20 @@ def test_json_formatter_formats_record(tmp_path, format_keys):
     assert "stack_info" not in data
 
 
-def test_json_formatter_includes_extra_fields():
+def test_json_formatter_includes_extra_fields(caplog, json_formatter):
     """
     Verify that JSONFormatter includes custom extra fields passed to a log record.
     """
-    # TODO
-    ...
+
+    LOGGER.warning("This is a message", extra={"test_field": "This is a test field"})
+
+    record = caplog.records[0]
+
+    result = json_formatter.format(record)
+    data = json.loads(result)
+
+    assert data["message"] == "This is a message"
+    assert data["test_field"] == "This is a test field"
 
 
 def test_json_formatter_handles_exceptions():
