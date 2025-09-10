@@ -103,11 +103,36 @@ def write_env(tmp_path: Path):
 
 
 @pytest.fixture
-def log_record(tmp_path):
+def log_record_info(tmp_path):
     with freeze_time("2023-01-01 12:00:00"):
         yield logging.LogRecord(
             "test", 10, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
         )
+
+
+@pytest.fixture
+def log_records(tmp_path):
+    with freeze_time("2023-01-01 12:00:00"):
+        yield [
+            logging.LogRecord(
+                "test", 0, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+            logging.LogRecord(
+                "test", 10, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+            logging.LogRecord(
+                "test", 20, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+            logging.LogRecord(
+                "test", 30, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+            logging.LogRecord(
+                "test", 40, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+            logging.LogRecord(
+                "test", 50, str(tmp_path), 10, "This is a test", None, None, test_field="Test field"
+            ),
+        ]
 
 
 @pytest.fixture

@@ -1,15 +1,15 @@
 import json
 
-from tomatempo.logs import LOGGER
+from tomatempo.logs import LOGGER, NonErrorFilter
 
 
-def test_json_formatter_formats_record(log_record, json_formatter):
+def test_json_formatter_formats_record(log_records, json_formatter):
     """
     Ensure that JSONFormatter correctly formats a LogRecord into a JSON string
     containing expected keys (message, timestamp, level, etc.).
     """
 
-    result = json_formatter.format(log_record)
+    result = json_formatter.format(log_records[1])
 
     assert result is not None
     assert isinstance(result, str)
@@ -43,7 +43,7 @@ def test_json_formatter_includes_extra_fields(caplog, json_formatter):
     assert data["test_field"] == "This is a test field"
 
 
-def test_json_formatter_handles_exceptions(caplog, json_formatter):
+def test_json_formatter_handles_exceptions(caplog):
     """
     Check that JSONFormatter properly serializes exception and stack information when present.
     """
@@ -59,20 +59,18 @@ def test_json_formatter_handles_exceptions(caplog, json_formatter):
     assert "division by zero" in caplog.text
 
 
-def test_non_error_filter_allows_info_and_below():
+def test_non_error_filter_allows_info_and_below_and_block_above(log_records):
     """
     Ensure that NonErrorFilter allows DEBUG and INFO log records.
     """
-    # TODO
-    ...
 
-
-def test_non_error_filter_blocks_warning_and_above():
-    """
-    Ensure that NonErrorFilter blocks WARNING, ERROR, and CRITICAL log records.
-    """
-    # TODO
-    ...
+    f = NonErrorFilter()
+    assert f.filter(log_records[0]) is True
+    assert f.filter(log_records[1]) is True
+    assert f.filter(log_records[2]) is True
+    assert f.filter(log_records[3]) is False
+    assert f.filter(log_records[4]) is False
+    assert f.filter(log_records[5]) is False
 
 
 def test_setup_logging_creates_log_file():
